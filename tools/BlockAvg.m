@@ -10,7 +10,9 @@ function BlockAvg(hb, blen, offset, chnlst, keep, plotflag, hbnum)
 %plots of interest: (1) average per conditions, (2) individual
 %responses, (3) all conditions on same graph per chromophore
 %
-%Last Update: 2018-03-03
+%Note: 'supertitle' function is provided in nirs-toolbox/ext
+%
+%Last Update: 2018-03-04
 %
 %By: Guilherme A. Zimeo Morais
 %Contact: gazmorais@gmail.com
@@ -74,6 +76,7 @@ for n=1:subjs
     for c=1:conds
 
         trials = length(hb(n).stimulus.values{c}.onset);
+        clbl = hb(n).stimulus.keys{c};
 
         window = length(-wblen:round(dur*Fs));
         block = zeros(trials,window,chtot,hblen);
@@ -126,19 +129,26 @@ for n=1:subjs
         for h = 1:hblen
 
             curhb = squeeze(block(:,:,:,h));
+            hbstr = hbtyp{hbnum(h)};
 
             if plotflag(1) %plot average per condition
-                avg = 1;                    
+                avg = 1;
                 if h==1
                     fig_hb = -1;
                 end
-                fig_hb = PlotBlockAvg(curhb, twin, cstr(h,c), avg, fig_hb, chnlbl, n);
+                fig_hb = PlotBlockAvg(curhb, twin, cstr(h,c), avg, fig_hb, chnlbl);
+                if h==hblen
+                    figure(fig_hb);
+                    supertitle(['Subj ' num2str(n) '  -  Cond ' clbl '  -  Data All']);
+                end
             end
 
             if plotflag(2) %plot individual responses
                 avg = 0;
-                fig_t(c) = PlotBlockAvg(curhb, twin, cstr(h,c), avg, -1, chnlbl, n);
+                fig_t(c) = PlotBlockAvg(curhb, twin, cstr(h,c), avg, -1, chnlbl);
                 trlim(c,:) = get(gca, 'YLim');
+                figure(fig_t(c));
+                supertitle(['Subj ' num2str(n) '  -  Cond ' clbl '  -  Data ' hbstr]);
             end
 
             if plotflag(3) %plot all conditions on same graph
@@ -146,28 +156,34 @@ for n=1:subjs
                 if c==1
                     fig_c(h) = -1;
                 end
-                fig_c(h) = PlotBlockAvg(curhb, twin, cstr(h,c), avg, fig_c(h), chnlbl, n);
+                fig_c(h) = PlotBlockAvg(curhb, twin, cstr(h,c), avg, fig_c(h), chnlbl);
+                if c==conds
+                    figure(fig_c(h));
+                    supertitle(['Subj ' num2str(n) '  -  Cond All  -  Data ' hbstr]);
+                end
             end
 
         end                                 
 
     end
-    
-    if plotflag(2)
-        trlim = [min(min(trlim)) max(max(trlim))];
-        for h = 1:size(fig_t)
-            fig = figure(h);
-            for ax = 1:length(fig.Children)
-                set(fig.Children(ax), 'YLim', trlim);
-            end
-        end
-    end
+
+%following is thought to set equal scales for individual plots
+%commented out as it makes the supertitle disappear (needs fix)
+%     if plotflag(2)
+%         trlim = [min(min(trlim)) max(max(trlim))];
+%         for h = 1:size(fig_t)
+%             fig = figure(fig_t(h));
+%             for ax = 1:length(fig.Children)
+%                 set(fig.Children(ax), 'YLim', trlim);
+%             end
+%         end
+%     end
     
 end
 
 end
 
-function h = PlotBlockAvg(block, twin, cstr, avg, figh, chnlbl, n)
+function h = PlotBlockAvg(block, twin, cstr, avg, figh, chnlbl)
 
     if nargin < 3
         cstr = 'r';
@@ -225,9 +241,8 @@ function h = PlotBlockAvg(block, twin, cstr, avg, figh, chnlbl, n)
         if figh < 0 %new figure
             
             set(gca,'XLim',[twin(1) twin(end)]);
-            line([0 0],get(gca,'YLim'),'Color','m');
             %title(['Channel ' num2str(ch)]);
-            title(['Subject ' num2str(n) ' - Channel ' chnlbl{ch}]);
+            title(['Channel ' chnlbl{ch}]);
         
         else   
             
@@ -238,6 +253,7 @@ function h = PlotBlockAvg(block, twin, cstr, avg, figh, chnlbl, n)
         end
         
         set(gca,'YLim', [miny maxy]);
+        line([0 0],get(gca,'YLim'),'Color','m');
 
     end
 

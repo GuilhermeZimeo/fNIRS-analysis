@@ -23,8 +23,7 @@ Pipeline example to analyze fNIRS data exported in *.nirs format without trigger
   - Band-pass filter the hemodynamic data for visualization purposes
   - Generate a block average for each subject to inspect activation
 
-.
-**Important note**: the script is primarily built upon the nirs-toolbox by Ted Huppert et al. [1]
-[1]: https://bitbucket.org/huppertt/nirs-toolbox/wiki/Home
+
+**Important note**: the script is primarily built upon the nirs-toolbox by Ted Huppert et al.: https://bitbucket.org/huppertt/nirs-toolbox/wiki/Home
 
 **Bugs reports and suggestions for improvements would be very appreciated.**
