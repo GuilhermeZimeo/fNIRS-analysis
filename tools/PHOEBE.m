@@ -2,8 +2,9 @@ function [keep,SCI,xpower] = PHOEBE(din, cutoff, thres1, thres2, wlens)
 %This calculates two thresholds to assess signal quality of fNIRS data.
 %Similar as in Pollonini et al 2016: https://doi.org/10.1364/BOE.7.005104
 %But here, I considered a shifting window of 10s for the computation.
+%Note: original assessment was suggested for two wavelengths only.
 %
-%Last Update: 2018-02-14
+%Last Update: 2018-03-04
 %
 %By: Guilherme A. Zimeo Morais
 %Contact: gazmorais@gmail.com

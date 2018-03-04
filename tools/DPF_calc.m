@@ -2,35 +2,44 @@ function DPF = DPF_calc(din, age_all)
 %This calculates the DPF based on subject's age and wavelengths used
 %based on Scholkmann and Wolf 2013 - DOI: 10.1117/1.JBO.18.10.105004
 %
-%Last Updated: 2018-02-14
+%Last Updated: 2018-03-04
 %
 %By: Guilherme A. Zimeo Morais
 %Contact: gazmorais@gmail.com
+
+if nargin < 2 %age not provided as input
+    
+    %retrieve demographics from data provided
+    demographics = nirs.createDemographicsTable(din);
+    
+    %attempt to retrieve 'age' category from demographics table
+    idxctg = strcmpi(demographics.Properties.VariableNames,'age');
+    
+    if any(idxctg) %category found
+        age_all = table2array(demographics(:,idxctg));
+        
+    else %if no age info, assume age = 25
+        age_all = 25*ones(1,length(din)); 
+        disp('Age info not available. Approximating as 25 years old.');
+    end
+    
+end
 
 %retrieves wavelengths used in the measurement
 %note: assumes all data collected with same WLs
 WLi = unique(din(1).probe.link.type)';
 
-%initialize DPF
+%initialize DPF matrix (subjs x WLs)
 DPF = zeros(length(din),length(WLi));
 
 %iterates over all sessions
 for n=1:length(din)
 
-    if nargin < 2
-        
-        %attempt to retrieve Age from demographics table
-        if din(n).demographics.values{2} > 0
-            age = din(n).demographics.values{2};
-            
-        %if age not available (i.e. 0), initialize as 25    
-        else
-            age = 25;
-        end
-    
-    %age array provided as input for the function   
-    else
-        age = age_all(n);
+    age = age_all(n);
+              
+    %check if age info is not reliable
+    if ~isnumeric(age) || age == 0
+        age = 25; %assume 25y old
     end
 
     %iterate over wavelengths
